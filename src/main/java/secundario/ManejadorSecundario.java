@@ -33,6 +33,10 @@ public class ManejadorSecundario extends Thread {
             switch (mensaje.getCabecera()) {
                 case Protocolo.STORE -> guardarFragmento(mensaje);
                 case Protocolo.FRAG_REQUEST -> enviarFragmento(mensaje.getNombreArchivo(), salida);
+                case Protocolo.DELETE -> eliminarFragmento(mensaje.getNombreArchivo());
+                case Protocolo.RENAME -> renombrarFragmento(mensaje.getNombreArchivo());
+                case Protocolo.LIST -> enviarListaArchivos(salida);
+
                 default -> System.out.println("Cabecera desconocida en secundario.");
             }
 
@@ -75,4 +79,48 @@ public class ManejadorSecundario extends Thread {
             System.err.println("Error al enviar fragmento: " + e.getMessage());
         }
     }
+   //
+    private void eliminarFragmento(String nombreArchivo) {
+        File archivo = new File("fragmentos", nombreArchivo);
+        if (archivo.exists()) {
+            archivo.delete();
+            System.out.println("Fragmento eliminado: " + nombreArchivo);
+        } else {
+            System.out.println("Fragmento no encontrado para eliminar: " + nombreArchivo);
+        }
+    }
+    private void renombrarFragmento(String nombres) {
+        String[] partes = nombres.split("\\|");
+        File viejo = new File("fragmentos", partes[0]);
+        File nuevo = new File("fragmentos", partes[1]);
+        if (viejo.exists()) {
+            viejo.renameTo(nuevo);
+            System.out.println("Fragmento renombrado.");
+        }
+    }
+    
+    private void enviarListaArchivos(ObjectOutputStream salida) {
+        File carpeta = new File("fragmentos");
+        File[] archivos = carpeta.listFiles();
+
+        StringBuilder nombres = new StringBuilder();
+        if (archivos != null) {
+            for (File archivo : archivos) {
+                nombres.append(archivo.getName()).append(",");
+            }
+        }
+
+        try {
+            byte[] datos = nombres.toString().getBytes();
+            Mensaje respuesta = new Mensaje(Protocolo.LIST, null, datos, datos.length);
+            salida.writeObject(respuesta);
+            salida.flush();
+            System.out.println("Lista enviada al maestro");
+        } catch (IOException e) {
+            System.err.println("Error enviando lista de archivos: " + e.getMessage());
+        }
+    }
+
+
+
 }

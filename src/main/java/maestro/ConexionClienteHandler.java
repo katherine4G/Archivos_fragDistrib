@@ -5,6 +5,7 @@ import common.Protocolo;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 
 public class ConexionClienteHandler extends Thread {
 
@@ -27,6 +28,10 @@ public class ConexionClienteHandler extends Thread {
             switch (mensaje.getCabecera()) {
                 case Protocolo.UPLOAD -> manejarUpload(mensaje);
                 case Protocolo.DOWNLOAD -> manejarDownload(mensaje);
+                case Protocolo.DELETE -> manejarDelete(mensaje);
+                case Protocolo.RENAME -> manejarRename(mensaje);
+                case Protocolo.LIST -> manejarList();
+
                 default -> System.out.println("Cabecera desconocida: " + mensaje.getCabecera());
             }
 
@@ -68,4 +73,34 @@ public class ConexionClienteHandler extends Thread {
             System.err.println("Error enviando archivo al cliente: " + e.getMessage());
         }
     }
+    private void manejarDelete(Mensaje mensaje) {
+        Fragmentador fragmentador = new Fragmentador();
+        fragmentador.eliminarFragmentos(mensaje.getNombreArchivo());
+    }
+    private void manejarRename(Mensaje mensaje) {
+        String[] partes = mensaje.getNombreArchivo().split("\\|");
+        String actual = partes[0];
+        String nuevo = partes[1];
+
+        Fragmentador fragmentador = new Fragmentador();
+        fragmentador.renombrarFragmentos(actual, nuevo);
+    }
+    
+    private void manejarList() {
+        Fragmentador fragmentador = new Fragmentador();
+        List<String> archivos = fragmentador.obtenerListaArchivos();
+
+        try {
+            String unidos = String.join(",", archivos);
+            byte[] datos = unidos.getBytes();
+
+            Mensaje respuesta = new Mensaje(Protocolo.LIST, null, datos, datos.length);
+            salida.writeObject(respuesta);
+            salida.flush();
+        } catch (IOException e) {
+            System.err.println("Error al enviar lista: " + e.getMessage());
+        }
+    }
+
+
 }
