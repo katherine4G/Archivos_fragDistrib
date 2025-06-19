@@ -5,16 +5,18 @@ import common.Constantes;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ServidorSecundario {
 
     public static void main(String[] args) {
-        String[] argumentos = {"3"};  // nodo 1, 2 o 3
+        String[] argumentos = {"3"};  // cambiar nodo 1, 2 o 3
         args = argumentos;
 
         int puerto = obtenerPuertoDesdeArgs(args);
-
+        System.out.println("Nodo: " + Arrays.toString(argumentos));
         System.out.println("Servidor Secundario escuchando en puerto " + puerto);
+
 
         try (ServerSocket servidor = new ServerSocket(puerto)) {
             while (true) {

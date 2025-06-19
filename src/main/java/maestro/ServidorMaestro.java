@@ -10,7 +10,7 @@ public class ServidorMaestro {
 
     public static void main(String[] args) {
         System.out.println("Servidor Maestro escuchando en puerto " + Constantes.PUERTO_MAESTRO + "...");
-
+        System.out.println("Ahora, ejecute los nodos. package:secundario > ServidorSecundario.java");
         try (ServerSocket serverSocket = new ServerSocket(Constantes.PUERTO_MAESTRO)) {
             while (true) {
                 Socket socketCliente = serverSocket.accept();

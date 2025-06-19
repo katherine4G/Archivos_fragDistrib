@@ -44,7 +44,7 @@ public class ConexionClienteHandler extends Thread {
     }
 
     private void manejarUpload(Mensaje mensaje) {
-        System.out.println("⬆️ Recibiendo archivo: " + mensaje.getNombreArchivo());
+        System.out.println("Recibiendo archivo: " + mensaje.getNombreArchivo());
         byte[] datos = mensaje.getDatos();
 
         // Fragmentar
@@ -55,7 +55,7 @@ public class ConexionClienteHandler extends Thread {
     }
 
     private void manejarDownload(Mensaje mensaje) {
-        System.out.println("⬇️ Cliente solicita descarga: " + mensaje.getNombreArchivo());
+        System.out.println("Cliente solicita descarga: " + mensaje.getNombreArchivo());
 
         Fragmentador fragmentador = new Fragmentador();
         byte[] archivoReensamblado = fragmentador.reensamblarArchivo(mensaje.getNombreArchivo());
