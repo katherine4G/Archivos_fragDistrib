@@ -14,6 +14,7 @@ public class ClienteGUI extends JFrame {
     private final JButton botonDescargar;
     private final JButton botonEliminar;
     private final JButton botonRenombrar;
+    private final JButton botonRefrescar ;
     private final JTextField campoNuevoNombre;
     private final JProgressBar barraProgreso;
     private final JTextArea areaMensajes;
@@ -36,10 +37,12 @@ public class ClienteGUI extends JFrame {
         botonDescargar = new JButton("\uD83D\uDCE5 Descargar");
         botonEliminar = new JButton("\u274C Eliminar");
         botonRenombrar = new JButton("\u2014 Renombrar");
+        botonRefrescar = new JButton("🔄");
         panelBotones.add(botonSubir);
         panelBotones.add(botonDescargar);
         panelBotones.add(botonEliminar);
         panelBotones.add(botonRenombrar);
+        panelBotones.add(botonRefrescar);
 
         // Campo nuevo nombre
         campoNuevoNombre = new JTextField();
@@ -100,6 +103,9 @@ public class ClienteGUI extends JFrame {
                 controller.mostrarMensaje("Seleccione un archivo local y escriba el nuevo nombre.");
             }
         });
+        
+        botonRefrescar.addActionListener(e -> controller.actualizarListaCombinada());
+
 
         // ventana
         setSize(550, 400);
@@ -129,6 +135,10 @@ public class ClienteGUI extends JFrame {
 
     public void actualizarProgreso(int valor) {
         barraProgreso.setValue(valor);
+    }
+
+    public void setProgreso(int porcentaje) {
+        barraProgreso.setValue(porcentaje);
     }
 
     public static void main(String[] args) {

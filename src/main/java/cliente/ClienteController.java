@@ -3,11 +3,7 @@ package cliente;
 import common.FileUtils;
 import javax.swing.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ClienteController {
 
@@ -25,7 +21,6 @@ public class ClienteController {
         clienteSocket = temp;
     }
 
-    // Subir archivo desde el sistema local al servidor maestro
     public void subirArchivo() {
         JFileChooser fileChooser = new JFileChooser();
         int opcion = fileChooser.showOpenDialog(vista);
@@ -35,6 +30,7 @@ public class ClienteController {
                 byte[] datos = FileUtils.leerArchivo(archivo);
                 clienteSocket.enviarArchivo(archivo.getName(), datos);
                 mostrarMensaje("📤 Archivo subido exitosamente.");
+                animarProgreso();
                 actualizarListaCombinada();
             } catch (Exception e) {
                 mostrarMensaje("❌ Error al subir archivo: " + e.getMessage());
@@ -42,58 +38,18 @@ public class ClienteController {
         }
     }
 
-    // Descargar archivo del sistema distribuido y guardarlo en /descargas
     public void descargarArchivo(String nombreArchivo) {
         try {
             byte[] datos = clienteSocket.descargarArchivo(nombreArchivo);
             FileUtils.guardarArchivo(nombreArchivo, datos);
             mostrarMensaje("📥 Archivo descargado con éxito.");
+            animarProgreso();
             actualizarListaCombinada();
         } catch (Exception e) {
             mostrarMensaje("❌ Error al descargar: " + e.getMessage());
         }
     }
 
-    // Mostrar mensaje en la interfaz
-    public void mostrarMensaje(String msg) {
-        vista.mostrarMensaje(msg);
-    }
-
-    // Leer archivos locales desde /descargas y mostrarlos en la tabla
-    public void actualizarListaCombinada() {
-        Set<String> archivosLocales = new HashSet<>();
-        Set<String> archivosRemotos = new HashSet<>();
-
-        // Leer locales
-        File carpeta = new File("descargas");
-        if (!carpeta.exists()) carpeta.mkdir();
-
-        String[] locales = carpeta.list();
-        if (locales != null) archivosLocales.addAll(Arrays.asList(locales));
-
-        // Leer remotos desde el sistema distribuido
-        try {
-            archivosRemotos.addAll(clienteSocket.listarArchivos());
-        } catch (Exception e) {
-            mostrarMensaje("⚠️ No se pudo obtener lista remota: " + e.getMessage());
-        }
-
-        // Evitar duplicados
-        List<String[]> archivosFinal = new ArrayList<>();
-        for (String archivo : archivosLocales) {
-            archivosFinal.add(new String[]{archivo, "local"});
-        }
-        for (String archivo : archivosRemotos) {
-            if (!archivosLocales.contains(archivo)) {
-                archivosFinal.add(new String[]{archivo, "remoto"});
-            }
-        }
-
-        // Actualizar tabla
-        vista.mostrarArchivosConEstado(archivosFinal);
-    }
-
-    // Eliminar archivo local
     public void eliminarArchivo(String nombreArchivo) {
         File archivo = new File("descargas", nombreArchivo);
         if (archivo.exists() && archivo.delete()) {
@@ -104,7 +60,6 @@ public class ClienteController {
         actualizarListaCombinada();
     }
 
-    // Renombrar archivo local
     public void renombrarArchivo(String viejo, String nuevo) {
         File archivoViejo = new File("descargas", viejo);
         File archivoNuevo = new File("descargas", nuevo);
@@ -116,4 +71,56 @@ public class ClienteController {
         }
         actualizarListaCombinada();
     }
+
+    public void actualizarListaCombinada() {
+        Set<String> archivosLocales = new HashSet<>();
+        Set<String> archivosRemotos = new HashSet<>();
+
+        File carpeta = new File("descargas");
+        if (!carpeta.exists()) carpeta.mkdir();
+
+        String[] locales = carpeta.list();
+        if (locales != null) archivosLocales.addAll(Arrays.asList(locales));
+
+        try {
+            archivosRemotos.addAll(clienteSocket.listarArchivos());
+        } catch (Exception e) {
+            mostrarMensaje("⚠️ No se pudo obtener lista remota: " + e.getMessage());
+        }
+
+        List<String[]> archivosFinal = new ArrayList<>();
+        for (String archivo : archivosLocales) {
+            archivosFinal.add(new String[]{archivo, "local"});
+        }
+        for (String archivo : archivosRemotos) {
+            if (!archivosLocales.contains(archivo)) {
+                archivosFinal.add(new String[]{archivo, "remoto"});
+            }
+        }
+
+        vista.mostrarArchivosConEstado(archivosFinal);
+    }
+
+    public void mostrarMensaje(String msg) {
+        vista.mostrarMensaje(msg);
+    }
+
+    // Animación  barra de progreso
+    private void animarProgreso() {
+        new Thread(() -> {
+            for (int i = 0; i <= 100; i += 5) {
+                vista.setProgreso(i);
+                try {
+                    Thread.sleep(25);
+                } catch (InterruptedException ignored) {}
+            }
+
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ignored) {}
+
+            vista.setProgreso(0);
+        }).start();
+    }
+
 }

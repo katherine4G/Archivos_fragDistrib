@@ -6,6 +6,8 @@ import common.Protocolo;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManejadorSecundario extends Thread {
 
@@ -98,29 +100,49 @@ public class ManejadorSecundario extends Thread {
             System.out.println("Fragmento renombrado.");
         }
     }
-    
     private void enviarListaArchivos(ObjectOutputStream salida) {
-        File carpeta = new File("fragmentos");
-        File[] archivos = carpeta.listFiles();
+    File carpeta = new File("fragmentos");
+    File[] archivos = carpeta.listFiles();
 
-        StringBuilder nombres = new StringBuilder();
-        if (archivos != null) {
-            for (File archivo : archivos) {
-                nombres.append(archivo.getName()).append(",");
-            }
-        }
-
-        try {
-            byte[] datos = nombres.toString().getBytes();
-            Mensaje respuesta = new Mensaje(Protocolo.LIST, null, datos, datos.length);
-            salida.writeObject(respuesta);
-            salida.flush();
-            System.out.println("Lista enviada al maestro");
-        } catch (IOException e) {
-            System.err.println("Error enviando lista de archivos: " + e.getMessage());
+    List<String> nombres = new ArrayList<>();
+    if (archivos != null) {
+        for (File archivo : archivos) {
+            nombres.add(archivo.getName());
         }
     }
 
+    try {
+        String joined = String.join(",", nombres);
+        byte[] datos = joined.getBytes();
+        Mensaje respuesta = new Mensaje(Protocolo.LIST, null, datos, datos.length);
+        salida.writeObject(respuesta);
+        salida.flush();
+        System.out.println("Lista enviada al maestro: " + joined);
+    } catch (IOException e) {
+        System.err.println("Error enviando lista de archivos: " + e.getMessage());
+    }
+}
 
+//    private void enviarListaArchivos(ObjectOutputStream salida) {
+//        File carpeta = new File("fragmentos");
+//        File[] archivos = carpeta.listFiles();
+//
+//        StringBuilder nombres = new StringBuilder();
+//        if (archivos != null) {
+//            for (File archivo : archivos) {
+//                nombres.append(archivo.getName()).append(",");
+//            }
+//        }
+//
+//        try {
+//            byte[] datos = nombres.toString().getBytes();
+//            Mensaje respuesta = new Mensaje(Protocolo.LIST, null, datos, datos.length);
+//            salida.writeObject(respuesta);
+//            salida.flush();
+//            System.out.println("Lista enviada al maestro");
+//        } catch (IOException e) {
+//            System.err.println("Error enviando lista de archivos: " + e.getMessage());
+//        }
+//    }
 
 }

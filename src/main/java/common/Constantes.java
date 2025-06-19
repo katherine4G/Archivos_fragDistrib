@@ -18,6 +18,5 @@ public class Constantes {
     public static final String IP_SEC2 = "localhost";
     public static final String IP_SEC3 = "localhost";
 
-    // Tamaño de buffer
     public static final int TAMANO_BUFFER = 4096;
 }
