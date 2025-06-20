@@ -3,6 +3,7 @@ package maestro;
 import common.Constantes;
 import common.Mensaje;
 import common.Protocolo;
+import java.io.File;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Fragmentador {
 
@@ -167,7 +170,7 @@ public class Fragmentador {
     }
 
     public List<String> obtenerListaArchivos() {
-        Map<String, Integer> contadorPartes = new HashMap<>();
+        Map<String, List<File>> archivosPorNombre = new HashMap<>();
 
         for (int i = 1; i <= 3; i++) {
             String ip = switch (i) {
@@ -184,18 +187,46 @@ public class Fragmentador {
             };
 
             try {
-                List<String> fragmentos = obtenerDesdeNodo(ip, puerto);
-                contarPartes(contadorPartes, fragmentos);
+                List<String> nombres = obtenerDesdeNodo(ip, puerto);
+                for (String nombreFragmento : nombres) {
+                    String base = removerPrefijo(nombreFragmento);
+                    if (base == null) continue;
+
+                    archivosPorNombre.putIfAbsent(base, new ArrayList<>());
+
+                    // Simular File con nombre e IP si querés hacer futuro tracking por nodo
+                    File fragmentoSimulado = new File("fragmentos", nombreFragmento);
+                    archivosPorNombre.get(base).add(fragmentoSimulado);
+                }
+
             } catch (Exception e) {
                 System.err.println("Nodo " + puerto + " no respondió: " + e.getMessage());
             }
         }
 
-        List<String> archivos = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : contadorPartes.entrySet()) {
-            archivos.add(entry.getKey());
+        // Convertir a lista final
+        List<String> resultado = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+
+        for (Map.Entry<String, List<File>> entry : archivosPorNombre.entrySet()) {
+            String nombreArchivo = entry.getKey();
+            List<File> fragmentos = entry.getValue();
+
+            long tamañoTotal = 0;
+            long ultimaModificacion = 0;
+
+            for (File f : fragmentos) {
+                if (f.exists()) {
+                    tamañoTotal += f.length();
+                    ultimaModificacion = Math.max(ultimaModificacion, f.lastModified());
+                }
+            }
+
+            String fecha = sdf.format(new Date(ultimaModificacion));
+            resultado.add(nombreArchivo + ";" + tamañoTotal + ";" + fecha);
         }
-        return archivos;
+
+        return resultado;
     }
 
     private void contarPartes(Map<String, Integer> mapa, List<String> fragmentos) {

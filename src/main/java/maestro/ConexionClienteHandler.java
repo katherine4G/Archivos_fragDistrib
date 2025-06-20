@@ -101,6 +101,4 @@ public class ConexionClienteHandler extends Thread {
             System.err.println("Error al enviar lista: " + e.getMessage());
         }
     }
-
-
 }

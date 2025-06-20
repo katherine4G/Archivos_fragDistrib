@@ -27,7 +27,8 @@ public class ClienteGUI extends JFrame {
         setLayout(new BorderLayout(10, 10));
 
         // Tabla
-        modeloTabla = new DefaultTableModel(new String[]{"Archivo", "Estado"}, 0);
+        modeloTabla = new DefaultTableModel(new String[]{"Archivo", "Estado", "Tamaño (bytes)", "Última modificación"}, 0);
+
         tablaArchivos = new JTable(modeloTabla);
         JScrollPane scrollTabla = new JScrollPane(tablaArchivos);
 
@@ -38,6 +39,12 @@ public class ClienteGUI extends JFrame {
         botonEliminar = new JButton("\u274C Eliminar");
         botonRenombrar = new JButton("\u2014 Renombrar");
         botonRefrescar = new JButton("🔄");
+        botonRefrescar.setPreferredSize(new Dimension(32, 32));
+        botonRefrescar.setBorderPainted(false);
+        botonRefrescar.setContentAreaFilled(false);
+        botonRefrescar.setFocusPainted(false);
+        botonRefrescar.setFont(new Font("Dialog", Font.PLAIN, 18));
+
         panelBotones.add(botonSubir);
         panelBotones.add(botonDescargar);
         panelBotones.add(botonEliminar);

@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.io.File;
 import java.util.*;
 
+import java.text.SimpleDateFormat;
+
+
 public class ClienteController {
 
     private final ClienteGUI vista;
@@ -90,14 +93,24 @@ public class ClienteController {
 
         List<String[]> archivosFinal = new ArrayList<>();
         for (String archivo : archivosLocales) {
-            archivosFinal.add(new String[]{archivo, "local"});
-        }
-        for (String archivo : archivosRemotos) {
-            if (!archivosLocales.contains(archivo)) {
-                archivosFinal.add(new String[]{archivo, "remoto"});
-            }
+            File f = new File("descargas", archivo);
+            long tamaño = f.length(); // en bytes
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a"); //formato hora
+            String hora = sdf.format(new Date(f.lastModified()));
+            archivosFinal.add(new String[]{archivo, "local", String.valueOf(tamaño), hora});
         }
 
+        for (String dato : archivosRemotos) {
+            String[] partes = dato.split(";", 3);
+            String nombre = partes.length > 0 ? partes[0] : "-";
+            String tamaño = partes.length > 1 ? partes[1] : "-";
+            String fecha = partes.length > 2 ? partes[2] : "-";
+
+            if (!archivosLocales.contains(nombre)) {
+                archivosFinal.add(new String[]{nombre, "remoto", tamaño, fecha});
+            }
+        }
+        
         vista.mostrarArchivosConEstado(archivosFinal);
     }
 
