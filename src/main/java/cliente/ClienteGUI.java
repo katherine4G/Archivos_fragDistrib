@@ -106,14 +106,11 @@ public class ClienteGUI extends JFrame {
         
         botonRefrescar.addActionListener(e -> controller.actualizarListaCombinada());
 
-
-        // ventana
         setSize(550, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
 
-        // cargar tabla
         controller.actualizarListaCombinada();
     }
 

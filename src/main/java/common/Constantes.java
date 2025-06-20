@@ -12,7 +12,7 @@ public class Constantes {
     public static final int PUERTO_SEC2 = 9002;
     public static final int PUERTO_SEC3 = 9003;
 
-    // IPs (local por ahora, luego hamchi)
+    // IPs 
     public static final String IP_MAESTRO = "localhost";
     public static final String IP_SEC1 = "localhost";
     public static final String IP_SEC2 = "localhost";

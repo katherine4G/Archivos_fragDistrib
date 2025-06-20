@@ -105,7 +105,7 @@ public class ClienteController {
         vista.mostrarMensaje(msg);
     }
 
-    // Animación  barra de progreso
+    // barra de progreso
     private void animarProgreso() {
         new Thread(() -> {
             for (int i = 0; i <= 100; i += 5) {
